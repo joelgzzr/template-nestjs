@@ -1,6 +1,6 @@
-## Guias API
+## Nest API Template
 
-API for the "guias" app.
+API template built with Nest.
 
 ## Installation
 
