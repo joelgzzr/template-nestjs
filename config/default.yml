@@ -1,0 +1,19 @@
+server:
+  port: 3001
+  origin: 'http://localhost:3000'
+
+db:
+  host: '127.0.0.1'
+  type: 'mysql'
+  port: 3306
+  username: 'root'
+  password: ''
+  database: ''
+  synchronize: true
+
+cookies:
+  domain: 'localhost'
+  secure: false
+
+jwt:
+  secret: 'secretkey123'

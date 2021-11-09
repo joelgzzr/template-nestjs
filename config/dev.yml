@@ -1,0 +1,15 @@
+server:
+  origin: ''
+
+db:
+  host: ''
+  username: ''
+  password: ''
+  database: ''
+  synchronize: true
+
+cookies:
+  domain: ''
+
+jwt:
+  secret: 'topSecretKey1234'
