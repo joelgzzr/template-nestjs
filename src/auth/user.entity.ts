@@ -1,4 +1,4 @@
-import bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcryptjs';
 import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, Unique } from 'typeorm';
 
 @Entity()

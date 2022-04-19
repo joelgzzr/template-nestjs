@@ -4,7 +4,7 @@ import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as config from 'config';
 
-import { JwtConfig } from '../config/interfaces/jwt-config.interface';
+import { JwtConfig } from '../config/interface/jwt-config.interface';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';

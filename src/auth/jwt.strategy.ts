@@ -5,7 +5,7 @@ import * as config from 'config';
 import { Request } from 'express';
 import { Strategy } from 'passport-jwt';
 
-import { JwtConfig } from '../config/interfaces/jwt-config.interface';
+import { JwtConfig } from '../config/interface/jwt-config.interface';
 
 import { JwtPayload } from './jwt-payload.interface';
 import { User } from './user.entity';
@@ -31,7 +31,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: JwtPayload): Promise<User> {
     const { email } = payload;
-    const user = await this.userRepository.findOne({ email });
+    const user = await this.userRepository.findOne({ where: { email } });
 
     if (!user) {
       throw new UnauthorizedException();

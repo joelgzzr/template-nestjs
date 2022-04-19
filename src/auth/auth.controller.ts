@@ -4,7 +4,7 @@ import { SendEmailResponse } from 'aws-sdk/clients/ses';
 import * as config from 'config';
 import { Response } from 'express';
 
-import { CookiesConfig } from '../config/interfaces/cookies-config.interface';
+import { CookiesConfig } from '../config/interface/cookies-config.interface';
 
 import { AuthService } from './auth.service';
 import { AuthForgotPasswordDto } from './dto/auth-forgot-password.dto';

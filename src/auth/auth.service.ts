@@ -1,13 +1,13 @@
 import { randomBytes } from 'crypto';
 
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as SES from 'aws-sdk/clients/ses';
 import { SendEmailResponse } from 'aws-sdk/clients/ses';
 import * as config from 'config';
 
-import { ServerConfig } from '../config/interfaces/server-config.interface';
+import { ServerConfig } from '../config/interface/server-config.interface';
 
 import { AuthForgotPasswordDto } from './dto/auth-forgot-password.dto';
 import { AuthResetPasswordDto } from './dto/auth-reset-password.dto';
@@ -35,7 +35,7 @@ export class AuthService {
     const email = await this.userRepository.validateUserPassword(authSignInDto);
 
     if (!email) {
-      throw new UnauthorizedException('Credenciales incorrectas');
+      throw new UnauthorizedException('Unauthorized', HttpStatus.UNAUTHORIZED as unknown as string);
     }
 
     const payload: JwtPayload = { email };
@@ -52,10 +52,10 @@ export class AuthService {
 
   async forgotPassword(authForgotPasswordDto: AuthForgotPasswordDto): Promise<SendEmailResponse> {
     const { email } = authForgotPasswordDto;
-    const user = await this.userRepository.findOne({ email });
+    const user = await this.userRepository.findOne({ where: { email } });
 
     if (!user) {
-      throw new UnauthorizedException('El email no está asociado a una cuenta');
+      throw new UnauthorizedException('Unauthorized', HttpStatus.UNAUTHORIZED as unknown as string);
     }
 
     const resetToken: string = randomBytes(20).toString('hex');
