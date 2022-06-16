@@ -1,20 +1,21 @@
 import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 import { JwtStrategy } from './jwt.strategy';
 import { User } from './user.entity';
-import { UserRepository } from './user.repository';
 
 describe('JwtStrategy', () => {
   let jwtStrategy: JwtStrategy;
-  let userRepository: UserRepository;
+  let userRepository: Repository<User>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         JwtStrategy,
         {
-          provide: UserRepository,
+          provide: getRepositoryToken(User),
           useFactory: () => ({
             findOne: jest.fn(() => true),
           }),
@@ -23,7 +24,7 @@ describe('JwtStrategy', () => {
     }).compile();
 
     jwtStrategy = module.get<JwtStrategy>(JwtStrategy);
-    userRepository = module.get<UserRepository>(UserRepository);
+    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
   });
 
   describe('validate', () => {

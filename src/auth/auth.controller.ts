@@ -18,7 +18,7 @@ export class AuthController {
   async signUp(@Body(ValidationPipe) authSignUpDto: AuthSignUpDto): Promise<{ accessToken: string; date: Date }> {
     const { email, password } = authSignUpDto;
     await this.authService.signUp(authSignUpDto);
-    return this.authService.signIn({ email, password, rememberMe: true });
+    return this.authService.signIn({ email, password });
   }
 
   @Post('/signin')

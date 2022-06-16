@@ -9,7 +9,7 @@ import { JwtConfig } from '../config/interface/jwt-config.interface';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
-import { UserRepository } from './user.repository';
+import { User } from './user.entity';
 
 const jwt: JwtConfig = config.get('jwt');
 
@@ -19,7 +19,7 @@ const jwt: JwtConfig = config.get('jwt');
     JwtModule.register({
       secret: process.env.JWT_SECRET || jwt.secret,
     }),
-    TypeOrmModule.forFeature([UserRepository]),
+    TypeOrmModule.forFeature([User]),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],

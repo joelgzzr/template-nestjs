@@ -17,7 +17,6 @@ const mockUser: AuthSignUpDto = {
 const mockCredentials: AuthSignInDto = {
   email: 'test@test.com',
   password: 'test1234',
-  rememberMe: false,
 };
 
 const mockUserEntity: User = new User();
@@ -60,7 +59,7 @@ describe('Auth Controller', () => {
     it('calls authService.signIn() correctly', async () => {
       const { email, password } = mockUser;
       await authController.signUp(mockUser);
-      expect(authService.signIn).toHaveBeenCalledWith({ email, password, rememberMe: true });
+      expect(authService.signIn).toHaveBeenCalledWith({ email, password });
     });
   });
 
