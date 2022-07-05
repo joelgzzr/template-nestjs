@@ -3,28 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { AuthSignInDto } from './dto/auth-signin.dto';
-import { AuthSignUpDto } from './dto/auth-signup.dto';
-import { User } from './user.entity';
-
-const mockUser: AuthSignUpDto = {
-  name: 'Test Name',
-  phone: '0000000',
-  email: 'test@test.com',
-  password: 'test1234',
-};
-
-const mockCredentials: AuthSignInDto = {
-  email: 'test@test.com',
-  password: 'test1234',
-};
-
-const mockUserEntity: User = new User();
-mockUserEntity.name = 'Test Name';
-mockUserEntity.phone = '0000000';
-mockUserEntity.email = 'test@test.com';
-mockUserEntity.password = 'test1234';
-mockUserEntity.salt = 'salt123';
+import { mockCredentials, mockForgotPassword, mockResetPassword, mockUser, mockUserEntity } from './utils/test.utils';
 
 describe('Auth Controller', () => {
   let authController: AuthController;
@@ -39,6 +18,8 @@ describe('Auth Controller', () => {
           useFactory: () => ({
             signUp: jest.fn(() => true),
             signIn: jest.fn(() => true),
+            forgotPassword: jest.fn(() => true),
+            resetPassword: jest.fn(() => true),
             me: jest.fn(() => true),
           }),
         },
@@ -67,6 +48,20 @@ describe('Auth Controller', () => {
     it('calls authService.signIn() correctly', async () => {
       await authController.signIn(mockCredentials);
       expect(authService.signIn).toHaveBeenCalledWith(mockCredentials);
+    });
+  });
+
+  describe('forgotPassword', () => {
+    it('calls authService.forgotPassword() correctly', async () => {
+      await authController.forgotPassword(mockForgotPassword);
+      expect(authService.forgotPassword).toHaveBeenCalledWith(mockForgotPassword);
+    });
+  });
+
+  describe('resetPassword', () => {
+    it('calls authService.resetPassword() correctly', async () => {
+      await authController.resetPassword(mockResetPassword);
+      expect(authService.resetPassword).toHaveBeenCalledWith(mockResetPassword);
     });
   });
 

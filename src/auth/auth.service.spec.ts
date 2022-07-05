@@ -5,43 +5,23 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { AuthService } from './auth.service';
-import { AuthResetPasswordDto } from './dto/auth-reset-password.dto';
-import { AuthSignInDto } from './dto/auth-signin.dto';
-import { AuthSignUpDto } from './dto/auth-signup.dto';
 import { User } from './user.entity';
+import {
+  mockCredentials,
+  mockForgotPassword,
+  mockResetPassword,
+  mockUser,
+  mockUserEntity,
+  mockUserEntityDeleted,
+} from './utils/test.utils';
 
-const mockUser: AuthSignUpDto = {
-  name: 'Test Name',
-  phone: '0000000',
-  email: 'test@test.com',
-  password: 'test1234',
-};
-
-const mockCredentials: AuthSignInDto = {
-  email: 'test@test.com',
-  password: 'test1234',
-};
-
-const mockResetPassword: AuthResetPasswordDto = {
-  resetToken: '1234567890',
-  password: 'testPass',
-};
-
-const mockUserEntity: User = new User();
-mockUserEntity.name = 'Test Name';
-mockUserEntity.phone = '0000000';
-mockUserEntity.email = 'test@test.com';
-mockUserEntity.password = 'test1234';
-mockUserEntity.salt = 'salt123';
-
-const mockUserEntityDeleted: User = new User();
-mockUserEntityDeleted.name = 'Test Name';
-mockUserEntityDeleted.phone = '0000000';
-mockUserEntityDeleted.email = 'test@test.com';
-mockUserEntityDeleted.password = 'test1234';
-mockUserEntityDeleted.salt = 'salt123';
-delete mockUserEntityDeleted.password;
-delete mockUserEntityDeleted.salt;
+jest.mock('aws-sdk/clients/ses', () => {
+  const mSES = {
+    sendEmail: jest.fn().mockReturnThis(),
+    promise: jest.fn(),
+  };
+  return jest.fn(() => mSES);
+});
 
 describe('Auth Service', () => {
   let authService: AuthService;
@@ -102,16 +82,12 @@ describe('Auth Service', () => {
       authService.validateUserPassword = jest.fn().mockReturnValue(() => 'test@test.com');
     });
 
-    it('authService.validateUserPassword() is not called initially', () => {
-      expect(authService.validateUserPassword).not.toHaveBeenCalled();
-    });
-
     it('calls authService.validateUserPassword() correctly', async () => {
       await authService.signIn(mockCredentials);
       expect(authService.validateUserPassword).toHaveBeenCalledWith(mockCredentials);
     });
 
-    it('throws error is authService.validateUserPassword() does not retrieve an email', async () => {
+    it('throws error if authService.validateUserPassword() does not retrieve an email', async () => {
       jest.spyOn(authService, 'validateUserPassword').mockImplementation(() => null);
 
       await expect(authService.signIn(mockCredentials)).rejects.toThrow(UnauthorizedException);
@@ -133,6 +109,35 @@ describe('Auth Service', () => {
     });
   });
 
+  describe('forgotPassword', () => {
+    const user: User = new User();
+
+    beforeEach(() => {
+      authService.insertResetToken = jest.fn().mockResolvedValue({});
+      user.email = 'test@test.com';
+    });
+
+    it('calls userRepository.findOne() correctly', async () => {
+      jest.spyOn(userRepository, 'findOne').mockImplementation(() => Promise.resolve(user));
+
+      await authService.forgotPassword(mockForgotPassword);
+      expect(userRepository.findOne).toHaveBeenCalledWith({ where: { email: 'test@test.com' } });
+    });
+
+    it('calls userRepository.findOne() correctly', async () => {
+      jest.spyOn(userRepository, 'findOne').mockImplementation(() => Promise.resolve(user));
+
+      await authService.forgotPassword(mockForgotPassword);
+      expect(userRepository.findOne).toHaveBeenCalledWith({ where: { email: 'test@test.com' } });
+    });
+
+    it('throws unauthorized if userRepository.findOne() does not return a user', async () => {
+      jest.spyOn(userRepository, 'findOne').mockImplementation(() => Promise.resolve(null));
+
+      expect(authService.forgotPassword(mockForgotPassword)).rejects.toThrow(UnauthorizedException);
+    });
+  });
+
   describe('resetPassword', () => {
     const user: User = new User();
     const today: Date = new Date();
@@ -142,7 +147,7 @@ describe('Auth Service', () => {
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     beforeEach(() => {
-      user.email = 'TestUsername';
+      user.email = 'test@test.com';
       user.save = jest.fn();
       user.resetTokenExpiration = tomorrow;
     });
@@ -154,17 +159,17 @@ describe('Auth Service', () => {
       expect(userRepository.findOne).toHaveBeenCalledWith({ where: { resetToken: '1234567890' } });
     });
 
-    it('throws conflict if userRepository.findOne() does not return a user', async () => {
+    it('throws unauthorized if userRepository.findOne() does not return a user', async () => {
       jest.spyOn(userRepository, 'findOne').mockImplementation(() => Promise.resolve(null));
 
-      await expect(authService.resetPassword(mockResetPassword)).rejects.toThrow(ConflictException);
+      await expect(authService.resetPassword(mockResetPassword)).rejects.toThrow(UnauthorizedException);
     });
 
-    it('throws conflict if user token is expired', async () => {
+    it('throws unauthorized if user token is expired', async () => {
       user.resetTokenExpiration = yesterday;
       jest.spyOn(userRepository, 'findOne').mockImplementation(() => Promise.resolve(user));
 
-      await expect(authService.resetPassword(mockResetPassword)).rejects.toThrow(ConflictException);
+      await expect(authService.resetPassword(mockResetPassword)).rejects.toThrow(UnauthorizedException);
     });
 
     it('throws internal server error if save fails', async () => {
@@ -179,7 +184,7 @@ describe('Auth Service', () => {
     const user: User = new User();
 
     beforeEach(() => {
-      user.email = 'TestUsername';
+      user.email = 'test@test.com';
     });
 
     it('returns username successfully', async () => {
@@ -187,7 +192,7 @@ describe('Auth Service', () => {
       jest.spyOn(user, 'validatePassword').mockImplementation(() => Promise.resolve(true));
 
       const result = await authService.validateUserPassword(mockCredentials);
-      expect(result).toEqual('TestUsername');
+      expect(result).toEqual('test@test.com');
     });
 
     it('returns null if user is not found', async () => {
@@ -203,6 +208,48 @@ describe('Auth Service', () => {
 
       const result = await authService.validateUserPassword(mockCredentials);
       expect(result).toBeNull();
+    });
+  });
+
+  describe('insertResetToken', () => {
+    const user: User = new User();
+
+    beforeEach(() => {
+      user.email = 'test@test.com';
+      user.save = jest.fn();
+    });
+
+    it('userRepository.findOne() is called correctly', async () => {
+      jest.spyOn(userRepository, 'findOne').mockImplementation(() => Promise.resolve(user));
+
+      await authService.insertResetToken('test@test.com', 'testToken', new Date());
+      expect(userRepository.findOne).toHaveBeenCalledWith({ where: { email: 'test@test.com' } });
+    });
+
+    it('throws unuthorized if userRepository.findOne() does not return a user', async () => {
+      jest.spyOn(userRepository, 'findOne').mockImplementation(() => Promise.resolve(null));
+
+      await expect(authService.insertResetToken('test@test.com', 'testToken', new Date())).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it('throws internal server error if save fails', async () => {
+      jest.spyOn(userRepository, 'findOne').mockImplementation(() => Promise.resolve(user));
+      jest.spyOn(user, 'save').mockRejectedValue({ errno: 10064 });
+
+      await expect(authService.insertResetToken('test@test.com', 'testToken', new Date())).rejects.toThrow(
+        InternalServerErrorException,
+      );
+    });
+
+    it('throws internal server error if save fails', async () => {
+      jest.spyOn(userRepository, 'findOne').mockImplementation(() => Promise.resolve(user));
+      jest.spyOn(user, 'save').mockRejectedValue({ errno: 10064 });
+
+      await expect(authService.insertResetToken('test@test.com', 'testToken', new Date())).rejects.toThrow(
+        InternalServerErrorException,
+      );
     });
   });
 
