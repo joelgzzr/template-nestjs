@@ -35,11 +35,10 @@ export class AuthService {
   ) {}
 
   async signUp(authSignUpDto: AuthSignUpDto): Promise<void> {
-    const { name, phone, email, password } = authSignUpDto;
+    const { name, email, password } = authSignUpDto;
 
     const user = this.userRepository.create();
     user.name = name;
-    user.phone = phone;
     user.email = email;
     user.salt = await bcrypt.genSalt();
     user.password = await this.hashPassword(password, user.salt);
@@ -121,7 +120,7 @@ export class AuthService {
     const user = await this.userRepository.findOne({ where: { resetToken } });
 
     if (!user || new Date() > user.resetTokenExpiration) {
-      throw new ConflictException('Error changing password', HttpStatus.CONFLICT as unknown as string);
+      throw new UnauthorizedException('Unauthorized', HttpStatus.UNAUTHORIZED as unknown as string);
     }
 
     user.resetToken = '';
@@ -152,6 +151,11 @@ export class AuthService {
 
   async insertResetToken(email: string, resetToken: string, resetTokenExpiration: Date): Promise<void> {
     const user = await this.userRepository.findOne({ where: { email } });
+
+    if (!user) {
+      throw new UnauthorizedException('Unauthorized', HttpStatus.UNAUTHORIZED as unknown as string);
+    }
+
     user.resetToken = resetToken;
     user.resetTokenExpiration = resetTokenExpiration;
 
