@@ -41,9 +41,4 @@ export class AuthController {
   me(@GetUser() user: User): User {
     return this.authService.me(user);
   }
-
-  @Get('/test')
-  test(): string {
-    return 'Hello';
-  }
 }
