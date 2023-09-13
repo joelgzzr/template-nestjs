@@ -7,6 +7,8 @@ import { User } from '../user.entity';
 export const mockUser: AuthSignUpDto = {
   name: 'Test Name',
   email: 'test@test.com',
+  address: 'Test address 100',
+  phone: '8372645339',
   password: 'test1234',
 };
 
