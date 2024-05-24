@@ -4,28 +4,28 @@ import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, Unique } from 'type
 @Entity()
 @Unique(['email'])
 export class User extends BaseEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: number;
 
-  @Column()
+  @Column({ type: 'varchar', length: 30 })
   name: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 50 })
   email: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 60 })
   address: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   phone: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   password: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   salt: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   resetToken: string;
 
   @Column({ type: 'datetime', nullable: true })

@@ -7,8 +7,8 @@ import { Repository } from 'typeorm';
 
 import { JwtConfig } from '../config/interface/jwt-config.interface';
 
+import { User } from './entity/user.entity';
 import { JwtPayload } from './jwt-payload.interface';
-import { User } from './user.entity';
 
 const jwt: JwtConfig = config.get('jwt');
 

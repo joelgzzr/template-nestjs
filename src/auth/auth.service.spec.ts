@@ -5,7 +5,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { AuthService } from './auth.service';
-import { User } from './user.entity';
+import { User } from './entity/user.entity';
 import {
   mockCredentials,
   mockForgotPassword,

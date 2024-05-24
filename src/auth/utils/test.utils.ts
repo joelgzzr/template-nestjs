@@ -2,7 +2,7 @@ import { AuthForgotPasswordDto } from '../dto/auth-forgot-password.dto';
 import { AuthResetPasswordDto } from '../dto/auth-reset-password.dto';
 import { AuthSignInDto } from '../dto/auth-signin.dto';
 import { AuthSignUpDto } from '../dto/auth-signup.dto';
-import { User } from '../user.entity';
+import { User } from '../entity/user.entity';
 
 export const mockUser: AuthSignUpDto = {
   name: 'Test Name',
