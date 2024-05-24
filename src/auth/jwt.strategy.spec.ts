@@ -3,8 +3,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { User } from './entity/user.entity';
 import { JwtStrategy } from './jwt.strategy';
-import { User } from './user.entity';
 
 describe('JwtStrategy', () => {
   let jwtStrategy: JwtStrategy;

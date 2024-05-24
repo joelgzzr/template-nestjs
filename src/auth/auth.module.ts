@@ -8,8 +8,8 @@ import { JwtConfig } from '../config/interface/jwt-config.interface';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { User } from './entity/user.entity';
 import { JwtStrategy } from './jwt.strategy';
-import { User } from './user.entity';
 
 const jwt: JwtConfig = config.get('jwt');
 

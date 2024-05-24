@@ -21,8 +21,8 @@ import { AuthForgotPasswordDto } from './dto/auth-forgot-password.dto';
 import { AuthResetPasswordDto } from './dto/auth-reset-password.dto';
 import { AuthSignInDto } from './dto/auth-signin.dto';
 import { AuthSignUpDto } from './dto/auth-signup.dto';
+import { User } from './entity/user.entity';
 import { JwtPayload } from './jwt-payload.interface';
-import { User } from './user.entity';
 
 const server: ServerConfig = config.get('server');
 
