@@ -8,10 +8,9 @@ import { AuthForgotPasswordDto } from './dto/auth-forgot-password.dto';
 import { AuthResetPasswordDto } from './dto/auth-reset-password.dto';
 import { AuthSignInDto } from './dto/auth-signin.dto';
 import { AuthSignUpDto } from './dto/auth-signup.dto';
+import { TokenResponseDto } from './dto/token-response.dto';
+import { User } from './entity/user.entity';
 import { GetUser } from './get-user.decorator';
-import { TokenResponse } from './response/token.response';
-import { UserResponse } from './response/user.response';
-import { User } from './user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -19,8 +18,7 @@ export class AuthController {
 
   @Post('/signup')
   @ApiOperation({ summary: 'Sign up a User', tags: ['auth'] })
-  @ApiResponse({ status: 201, description: 'Created', type: TokenResponse })
-  async signUp(@Body(ValidationPipe) authSignUpDto: AuthSignUpDto): Promise<TokenResponse> {
+  async signUp(@Body(ValidationPipe) authSignUpDto: AuthSignUpDto): Promise<TokenResponseDto> {
     const { email, password } = authSignUpDto;
     await this.authService.signUp(authSignUpDto);
     return this.authService.signIn({ email, password });
@@ -28,9 +26,8 @@ export class AuthController {
 
   @Post('/signin')
   @ApiOperation({ summary: 'Sign in a User', tags: ['auth'] })
-  @ApiResponse({ status: 201, description: 'Created', type: TokenResponse })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async signIn(@Body(ValidationPipe) authSignInDto: AuthSignInDto): Promise<TokenResponse> {
+  async signIn(@Body(ValidationPipe) authSignInDto: AuthSignInDto): Promise<TokenResponseDto> {
     return await this.authService.signIn(authSignInDto);
   }
 
@@ -48,9 +45,8 @@ export class AuthController {
   @Get('/me')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get User info', tags: ['auth'] })
-  @ApiResponse({ status: 201, description: 'OK', type: UserResponse })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  me(@GetUser() user: User): UserResponse {
+  me(@GetUser() user: User): User {
     return this.authService.me(user);
   }
 }
