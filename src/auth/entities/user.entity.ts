@@ -25,7 +25,7 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar' })
   salt: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   resetToken: string;
 
   @Column({ type: 'datetime', nullable: true })
