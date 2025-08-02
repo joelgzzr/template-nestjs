@@ -3,7 +3,7 @@ server:
   origin: 'http://localhost:3000'
 
 db:
-  host: '127.0.0.1'
+  host: 'host.docker.internal'
   type: 'mysql'
   port: 3306
   username: 'root'
