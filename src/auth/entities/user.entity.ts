@@ -1,4 +1,4 @@
-import * as bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, Unique } from 'typeorm';
 
 @Entity()
@@ -25,7 +25,7 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar' })
   salt: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   resetToken: string;
 
   @Column({ type: 'datetime', nullable: true })

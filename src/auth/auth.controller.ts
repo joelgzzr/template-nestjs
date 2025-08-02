@@ -1,7 +1,7 @@
+import { SendEmailResponse } from '@aws-sdk/client-ses';
 import { Controller, Body, Post, ValidationPipe, Get, UseGuards, Put } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { SendEmailResponse } from 'aws-sdk/clients/ses';
 
 import { AuthService } from './auth.service';
 import { AuthForgotPasswordDto } from './dto/auth-forgot-password.dto';
@@ -9,12 +9,12 @@ import { AuthResetPasswordDto } from './dto/auth-reset-password.dto';
 import { AuthSignInDto } from './dto/auth-signin.dto';
 import { AuthSignUpDto } from './dto/auth-signup.dto';
 import { TokenResponseDto } from './dto/token-response.dto';
-import { User } from './entity/user.entity';
+import { User } from './entities/user.entity';
 import { GetUser } from './get-user.decorator';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('/signup')
   @ApiOperation({ summary: 'Sign up a User', tags: ['auth'] })

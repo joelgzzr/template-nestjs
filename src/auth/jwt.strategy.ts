@@ -1,13 +1,13 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as config from 'config';
+import config from 'config';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Repository } from 'typeorm';
 
-import { JwtConfig } from '../config/interface/jwt-config.interface';
+import { JwtConfig } from '../config/interfaces/jwt-config.interface';
 
-import { User } from './entity/user.entity';
+import { User } from './entities/user.entity';
 import { JwtPayload } from './jwt-payload.interface';
 
 const jwt: JwtConfig = config.get('jwt');

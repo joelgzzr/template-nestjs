@@ -1,5 +1,6 @@
 import { randomBytes } from 'crypto';
 
+import { SESClient, SendEmailCommand, SendEmailResponse } from '@aws-sdk/client-ses';
 import {
   ConflictException,
   HttpStatus,
@@ -9,19 +10,17 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as SES from 'aws-sdk/clients/ses';
-import { SendEmailResponse } from 'aws-sdk/clients/ses';
-import * as bcrypt from 'bcryptjs';
-import * as config from 'config';
+import bcrypt from 'bcryptjs';
+import config from 'config';
 import { Repository } from 'typeorm';
 
-import { ServerConfig } from '../config/interface/server-config.interface';
+import { ServerConfig } from '../config/interfaces/server-config.interface';
 
 import { AuthForgotPasswordDto } from './dto/auth-forgot-password.dto';
 import { AuthResetPasswordDto } from './dto/auth-reset-password.dto';
 import { AuthSignInDto } from './dto/auth-signin.dto';
 import { AuthSignUpDto } from './dto/auth-signup.dto';
-import { User } from './entity/user.entity';
+import { User } from './entities/user.entity';
 import { JwtPayload } from './jwt-payload.interface';
 
 const server: ServerConfig = config.get('server');
@@ -89,32 +88,42 @@ export class AuthService {
 
     await this.insertResetToken(email, resetToken, resetTokenExpiration);
 
-    return new SES({
-      apiVersion: '2010-12-01',
-      accessKeyId: process.env.EMAIL_AK,
-      secretAccessKey: process.env.EMAIL_SK,
+    const sesClient = new SESClient({
       region: 'us-east-2',
-    })
-      .sendEmail({
-        Source: 'Email <email@gmail.com>',
-        Destination: {
-          ToAddresses: [`${user.name} <${email}>`],
+      credentials: {
+        accessKeyId: process.env.EMAIL_AK,
+        secretAccessKey: process.env.EMAIL_SK,
+      },
+    });
+
+    const sendEmailCommandInput = {
+      Source: 'Email <email@gmail.com>', // Verified sender email address
+      Destination: {
+        ToAddresses: [`${user.name} <${email}>`],
+      },
+      Message: {
+        Subject: {
+          Data: 'Restablecer Contraseña',
         },
-        Message: {
-          Subject: {
-            Data: 'Restablecer Contraseña',
-          },
-          Body: {
-            Html: {
-              Data: `
-                <h2>Haga click en en el enlace para restablecer contraseña</h2>
-                <a href="${process.env.ORIGIN || server.origin}/reset-password/${resetToken}">Enlace</a>
-              `,
-            },
+        Body: {
+          Html: {
+            Data: `
+              <h2>Haga click en en el enlace para restablecer contraseña</h2>
+              <a href="${process.env.ORIGIN || server.origin}/reset-password/${resetToken}">Enlace</a>
+            `,
           },
         },
-      })
-      .promise();
+      },
+    };
+
+    const command = new SendEmailCommand(sendEmailCommandInput);
+
+    try {
+      const response = await sesClient.send(command);
+      return response;
+    } catch {
+      throw new InternalServerErrorException();
+    }
   }
 
   async resetPassword(authResetPasswordDto: AuthResetPasswordDto): Promise<void> {
