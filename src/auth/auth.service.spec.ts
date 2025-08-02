@@ -5,7 +5,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { AuthService } from './auth.service';
-import { User } from './entity/user.entity';
+import { User } from './entities/user.entity';
 import {
   mockCredentials,
   mockForgotPassword,
@@ -15,13 +15,12 @@ import {
   mockUserEntityDeleted,
 } from './utils/test.utils';
 
-jest.mock('aws-sdk/clients/ses', () => {
-  const mSES = {
-    sendEmail: jest.fn().mockReturnThis(),
-    promise: jest.fn(),
-  };
-  return jest.fn(() => mSES);
-});
+jest.mock('@aws-sdk/client-ses', () => ({
+  SESClient: jest.fn(() => ({
+    send: jest.fn(),
+  })),
+  SendEmailCommand: jest.fn(() => {}),
+}));
 
 describe('Auth Service', () => {
   let authService: AuthService;
